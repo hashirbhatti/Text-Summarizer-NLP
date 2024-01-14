@@ -1,53 +1,35 @@
-from flask import Flask, render_template, redirect, Response, request
-from textSummarizer.pipeline.prediction import PredictionPipeline
-import os
+import streamlit as st
+import subprocess
 
-# Sample text for initialization
-text: str = "What is Text Summarization?"
+# Set custom page configuration
+st.set_page_config(page_title="SummarizeMe", page_icon="✍️", layout="wide")
 
-# Create Flask app instance
-app = Flask(__name__)
-
-@app.route("/", methods=["GET"])
-def index():
-    """
-    Renders the index page.
-    """
-    return render_template("index.html")
-
-@app.route("/train", methods=["GET"])
-def training():
-    """
-    Endpoint for triggering training process.
-    """
+def summarize_text(text):
     try:
-        # Execute the training script
-        os.system("python main.py")
-        return Response("Training successful !!")
-
+        response = st.session_state.pipe.stdin.write(f"{text}\n")
+        if response:
+            summary = response
+            return summary
+        else:
+            return f"Error Occurred! Unable to get summary from FastAPI backend."
     except Exception as e:
-        return Response(f"Error Occurred! {e}")
+        return f"Error Occurred! {e}"
 
-@app.route("/predict", methods=["POST"])
-def predict_route():
-    """
-    Endpoint for making predictions using the text summarization model.
-    """
-    try:
-        # Get the text from the POST request
-        text = request.form.get("text")
+def start_fastapi_backend():
+    subprocess.Popen(["uvicorn", "app_backend:app", "--host", "0.0.0.0", "--port", "8000", "--reload"])
 
-        # Create an instance of the PredictionPipeline
-        obj = PredictionPipeline()
+def main():
+    st.title("Text Summarization App")
 
-        # Make a prediction using the provided text
-        summarized_text = obj.predict(text)
-
-        return summarized_text
-    
-    except Exception as e:
-        return Response(f"Error Occurred: {e}")
+    text_input = st.text_area("Enter the text for summarization:", "")
+    if st.button("Summarize"):
+        if text_input:
+            summary = summarize_text(text_input)
+            st.subheader("Summary:")
+            st.write(summary)
+        else:
+            st.warning("Please enter text for summarization.")
 
 if __name__ == "__main__":
-    # Run the Flask app
-    app.run(host="0.0.0.0", port=8080)
+    start_fastapi_backend()
+    main()
