@@ -1,35 +1,40 @@
-import streamlit as st
-import subprocess
+from flask import Flask, render_template, redirect, Response, request
+from textSummarizer.pipeline.prediction import PredictionPipeline
+import os
 
-# Set custom page configuration
-st.set_page_config(page_title="SummarizeMe", page_icon="✍️", layout="wide")
+# Sample text for initialization
+text: str = "What is Text Summarization?"
 
-def summarize_text(text):
+# Create Flask app instance
+app = Flask(__name__)
+
+@app.route("/", methods=["GET"])
+def index():
+    """
+    Renders the index page.
+    """
+    return render_template("index.html")
+
+@app.route("/predict", methods=["POST"])
+def predict_route():
+    """
+    Endpoint for making predictions using the text summarization model.
+    """
     try:
-        response = st.session_state.pipe.stdin.write(f"{text}\n")
-        if response:
-            summary = response
-            return summary
-        else:
-            return f"Error Occurred! Unable to get summary from FastAPI backend."
+        # Get the text from the POST request
+        text = request.form.get("text")
+
+        # Create an instance of the PredictionPipeline
+        obj = PredictionPipeline()
+
+        # Make a prediction using the provided text
+        summarized_text = obj.predict(text)
+
+        return summarized_text
+    
     except Exception as e:
-        return f"Error Occurred! {e}"
-
-def start_fastapi_backend():
-    subprocess.Popen(["uvicorn", "app_backend:app", "--host", "0.0.0.0", "--port", "8000", "--reload"])
-
-def main():
-    st.title("Text Summarization App")
-
-    text_input = st.text_area("Enter the text for summarization:", "")
-    if st.button("Summarize"):
-        if text_input:
-            summary = summarize_text(text_input)
-            st.subheader("Summary:")
-            st.write(summary)
-        else:
-            st.warning("Please enter text for summarization.")
+        return Response(f"Error Occurred: {e}")
 
 if __name__ == "__main__":
-    start_fastapi_backend()
-    main()
+    # Run the Flask app
+    app.run(host="0.0.0.0", port=8080)
