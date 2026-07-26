@@ -1,0 +1,110 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Summarizer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 20px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            resize: vertical;
+        }
+
+        input[type="button"] {
+            background-color: #4caf50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #resultContainer {
+            margin-top: 20px;
+        }
+
+        .loading {
+            display: none;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .loading img {
+            width: 50px;
+            height: 50px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Text Summarizer</h1>
+    <form id="summarizeForm">
+        <label for="text">Enter Text:</label>
+        <textarea id="text" name="text" rows="4" cols="50" required></textarea><br>
+        <div class="loading" id="loadingContainer">
+            <img src="https://loading.io/spinners/spin/lg.ajax-spinner-gif.gif" alt="Loading...">
+        </div>
+        <input type="button" value="Summarize" onclick="summarizeText()">
+    </form>
+
+    <div id="resultContainer"></div>
+
+    <script>
+        function summarizeText() {
+            var text = document.getElementById("text").value;
+
+            // Show loading spinner
+            document.getElementById("loadingContainer").style.display = "block";
+
+            // Make an asynchronous request to the server
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "/predict", true);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    // Hide loading spinner
+                    document.getElementById("loadingContainer").style.display = "none";
+
+                    if (xhr.status === 200) {
+                        // Update the result container with the summarized text
+                        document.getElementById("resultContainer").innerHTML = "<p>Summarized Text:</p><p>" + xhr.responseText + "</p>";
+                    } else {
+                        // Handle error
+                        console.error("Error occurred:", xhr.statusText);
+                        alert("Error occurred. Please try again.");
+                    }
+                }
+            };
+            xhr.send("text=" + encodeURIComponent(text));
+        }
+    </script>
+</body>
+</html>

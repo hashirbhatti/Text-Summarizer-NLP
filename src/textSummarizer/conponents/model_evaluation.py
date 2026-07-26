@@ -1,9 +1,15 @@
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
-from datasets import load_dataset, load_from_disk, load_metric
+from datasets import load_dataset, load_from_disk
 import torch
 import pandas as pd
 from tqdm import tqdm
 from textSummarizer.entity import ModelEvaluationConfig
+import os
+
+try:
+    from datasets import load_metric
+except ImportError:
+    from evaluate import load as load_metric
 
 
 
@@ -57,8 +63,22 @@ class ModelEvaluation:
 
     def evaluate(self):
         device = "cuda" if torch.cuda.is_available() else "cpu"
-        tokenizer = AutoTokenizer.from_pretrained(self.config.tokenizer_path)
-        model_pegasus = AutoModelForSeq2SeqLM.from_pretrained(self.config.model_path).to(device)
+        
+        # Try to load tokenizer from saved path, fall back to base model if not found
+        tokenizer_path = self.config.tokenizer_path
+        if isinstance(tokenizer_path, str) and os.path.exists(tokenizer_path):
+            tokenizer = AutoTokenizer.from_pretrained(tokenizer_path, local_files_only=True)
+        else:
+            print(f"Tokenizer path {tokenizer_path} not found or not a valid path, loading from base model")
+            tokenizer = AutoTokenizer.from_pretrained(self.config.model_path, local_files_only=True)
+        
+        # Load model from saved path
+        model_path = self.config.model_path
+        if isinstance(model_path, str) and os.path.exists(model_path):
+            model_pegasus = AutoModelForSeq2SeqLM.from_pretrained(model_path, local_files_only=True).to(device)
+        else:
+            print(f"Model path {model_path} not found")
+            raise FileNotFoundError(f"Model not found at {model_path}")
        
         #loading data 
         dataset_samsum_pt = load_from_disk(self.config.data_path)
@@ -72,7 +92,7 @@ class ModelEvaluation:
         dataset_samsum_pt['test'][0:10], rouge_metric, model_pegasus, tokenizer, batch_size = 2, column_text = 'dialogue', column_summary= 'summary'
             )
 
-        rouge_dict = dict((rn, score[rn].mid.fmeasure ) for rn in rouge_names )
+        rouge_dict = dict((rn, score[rn]) for rn in rouge_names )
 
         df = pd.DataFrame(rouge_dict, index = ['pegasus'] )
         df.to_csv(self.config.metric_file_name, index=False)

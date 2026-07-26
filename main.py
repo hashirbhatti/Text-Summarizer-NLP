@@ -1,3 +1,12 @@
+from pathlib import Path
+import sys
+
+PROJECT_ROOT = Path(__file__).resolve().parent
+SRC_ROOT = PROJECT_ROOT / "src"
+
+if str(SRC_ROOT) not in sys.path:
+    sys.path.insert(0, str(SRC_ROOT))
+
 from textSummarizer.pipeline.stage_01_data_ingestion import DataIngestionTrainingPipeline
 from textSummarizer.pipeline.stage_02_data_validation import DataValidationTrainingPipeline
 from textSummarizer.pipeline.stage_03_data_transformation import DataTransformationTrainingPipeline
@@ -15,7 +24,6 @@ try:
 except Exception as e:
         logger.exception(e)
         raise e
-
 
 
 
@@ -56,7 +64,6 @@ except Exception as e:
 
 
 
-
 STAGE_NAME = "Model Evaluation stage"
 try: 
    logger.info(f"*******************")
@@ -67,8 +74,3 @@ try:
 except Exception as e:
         logger.exception(e)
         raise e
-
-
-
-
-

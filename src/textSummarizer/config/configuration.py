@@ -71,19 +71,42 @@ class ConfigurationManager:
 
         create_directories([config.root_dir])
 
+        evaluation_strategy = getattr(params, "evaluation_strategy", None)
+        if evaluation_strategy is None:
+            evaluation_strategy = getattr(params, "eval_strategy", "steps")
+
+        def _coerce_int(value, default):
+            if value in (None, ""):
+                return default
+            if isinstance(value, (int, float)):
+                return int(value)
+            if isinstance(value, str):
+                return int(float(value))
+            return int(value)
+
+        def _coerce_float(value, default):
+            if value in (None, ""):
+                return default
+            if isinstance(value, (int, float)):
+                return float(value)
+            if isinstance(value, str):
+                return float(value)
+            return float(value)
+
         model_trainer_config = ModelTrainerConfig(
             root_dir=config.root_dir,
             data_path=config.data_path,
-            model_ckpt = config.model_ckpt,
-            num_train_epochs = params.num_train_epochs,
-            warmup_steps = params.warmup_steps,
-            per_device_train_batch_size = params.per_device_train_batch_size,
-            weight_decay = params.weight_decay,
-            logging_steps = params.logging_steps,
-            evaluation_strategy = params.evaluation_strategy,
-            eval_steps = params.evaluation_strategy,
-            save_steps = params.save_steps,
-            gradient_accumulation_steps = params.gradient_accumulation_steps
+            model_ckpt=config.model_ckpt,
+            num_train_epochs=_coerce_int(params.num_train_epochs, 1),
+            warmup_steps=_coerce_int(params.warmup_steps, 0),
+            per_device_train_batch_size=_coerce_int(params.per_device_train_batch_size, 1),
+            per_device_eval_batch_size=_coerce_int(params.per_device_eval_batch_size, 1),
+            weight_decay=_coerce_float(params.weight_decay, 0.01),
+            logging_steps=_coerce_int(params.logging_steps, 10),
+            evaluation_strategy=evaluation_strategy,
+            eval_steps=_coerce_int(params.eval_steps, 500),
+            save_steps=_coerce_int(params.save_steps, 1000000),
+            gradient_accumulation_steps=_coerce_int(params.gradient_accumulation_steps, 1)
         )
 
         return model_trainer_config
