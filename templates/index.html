@@ -1,109 +1,1215 @@
-<!-- templates/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Text Summarizer</title>
+    <title>SummarizeAI — Intelligent Text Summarization</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
+        :root {
+            --bg-dark: #080c14;
+            --card-bg: rgba(18, 26, 44, 0.65);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --card-hover-border: rgba(99, 102, 241, 0.4);
+            --primary-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
+            --accent-glow: rgba(139, 92, 246, 0.25);
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --text-subtle: #6b7280;
+            --success-color: #10b981;
+            --error-color: #ef4444;
+            --warning-color: #f59e0b;
+            --radius-lg: 18px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 20px;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1rem 4rem 1rem;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Ambient Glow Background Spheres */
+        .ambient-glow {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .glow-1 {
+            width: 500px;
+            height: 500px;
+            background: rgba(99, 102, 241, 0.18);
+            top: -150px;
+            left: -150px;
+        }
+
+        .glow-2 {
+            width: 450px;
+            height: 450px;
+            background: rgba(217, 70, 239, 0.15);
+            bottom: -100px;
+            right: -100px;
+        }
+
+        .glow-3 {
+            width: 350px;
+            height: 350px;
+            background: rgba(16, 185, 129, 0.1);
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            z-index: 1;
+        }
+
+        /* Header Styling */
+        header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(99, 102, 241, 0.12);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            color: #a5b4fc;
+            padding: 0.4rem 1rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            backdrop-filter: blur(8px);
+        }
+
+        .badge i {
+            color: #c084fc;
         }
 
         h1 {
-            color: #333;
+            font-size: 2.8rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            background: linear-gradient(180deg, #ffffff 0%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.75rem;
         }
 
-        form {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        .tagline {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+            max-width: 600px;
+            margin: 0 auto 1.5rem auto;
+            line-height: 1.6;
         }
 
-        label {
-            display: block;
-            margin-bottom: 10px;
-            font-weight: bold;
+        .features-row {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .feature-pill {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.8rem;
+            color: var(--text-subtle);
+        }
+
+        .feature-pill i {
+            color: #818cf8;
+        }
+
+        /* Card Panels */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            padding: 1.75rem;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+            margin-bottom: 2rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: var(--card-hover-border);
+        }
+
+        /* Preset Sample Buttons */
+        .preset-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .preset-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .preset-chips {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.25rem;
+        }
+
+        .chip-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-main);
+            padding: 0.4rem 0.85rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .chip-btn:hover {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: rgba(99, 102, 241, 0.4);
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+        /* Input Textarea Container */
+        .textarea-wrapper {
+            position: relative;
+            margin-bottom: 1.25rem;
         }
 
         textarea {
             width: 100%;
-            padding: 10px;
-            margin-bottom: 20px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            height: 180px;
+            background: rgba(10, 15, 26, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: var(--radius-md);
+            padding: 1.2rem;
+            color: #ffffff;
+            font-family: inherit;
+            font-size: 0.98rem;
+            line-height: 1.6;
             resize: vertical;
+            outline: none;
+            transition: all 0.25s ease;
         }
 
-        input[type="button"] {
-            background-color: #4caf50;
-            color: white;
-            padding: 10px 20px;
+        textarea:focus {
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15);
+            background: rgba(10, 15, 26, 0.95);
+        }
+
+        textarea::placeholder {
+            color: #4b5563;
+        }
+
+        /* Shake animation for invalid empty input */
+        .shake {
+            animation: shakeAnim 0.4s ease-in-out;
+            border-color: var(--error-color) !important;
+            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.2) !important;
+        }
+
+        @keyframes shakeAnim {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+
+        .textarea-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--text-subtle);
+        }
+
+        .counter-badge {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .clear-btn {
+            background: none;
             border: none;
-            border-radius: 4px;
+            color: var(--text-subtle);
             cursor: pointer;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            transition: color 0.2s ease;
         }
 
-        #resultContainer {
-            margin-top: 20px;
+        .clear-btn:hover {
+            color: var(--error-color);
         }
 
-        .loading {
+        /* Submit Action Button */
+        .btn-submit {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            background: var(--primary-gradient);
+            border: none;
+            border-radius: var(--radius-md);
+            color: #ffffff;
+            font-size: 1.05rem;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.35);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.6rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-submit:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(139, 92, 246, 0.45);
+        }
+
+        .btn-submit:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+        }
+
+        /* Error Notification Banner */
+        .alert-banner {
             display: none;
-            margin-top: 10px;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+            padding: 0.85rem 1.25rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 1.25rem;
+            font-size: 0.9rem;
+            align-items: center;
+            gap: 0.6rem;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .alert-banner i {
+            color: var(--error-color);
+            font-size: 1.1rem;
+        }
+
+        /* Funny Animated Loading Overlay */
+
+        /* Results Card & Display */
+        .result-container {
+            display: none;
+            margin-top: 1rem;
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .result-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 700;
+            font-size: 1.15rem;
+            color: #ffffff;
+        }
+
+        .result-title i {
+            color: #10b981;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-action {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: var(--text-main);
+            padding: 0.45rem 0.85rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-action:hover {
+            background: rgba(16, 185, 129, 0.2);
+            border-color: rgba(16, 185, 129, 0.4);
+            color: #ffffff;
+        }
+
+        .summary-body {
+            background: rgba(10, 15, 26, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: var(--radius-md);
+            padding: 1.4rem;
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: #f1f5f9;
+            margin-bottom: 1.5rem;
+            white-space: pre-wrap;
+            border-left: 4px solid #10b981;
+        }
+
+        /* Analytics Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: var(--radius-md);
+            padding: 1rem;
             text-align: center;
         }
 
-        .loading img {
-            width: 50px;
-            height: 50px;
+        .stat-val {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 0.2rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .stat-val.highlight {
+            background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-subtle);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Keyframe Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 640px) {
+            h1 { font-size: 2.1rem; }
+            .card { padding: 1.25rem; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .action-buttons { flex-direction: column; }
+        }
+
+        /* Enhanced Animations */
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.3); }
+            50% { box-shadow: 0 0 40px rgba(139, 92, 246, 0.5), 0 0 60px rgba(217, 70, 239, 0.3); }
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes bounceIn {
+            0% { opacity: 0; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.05); }
+            70% { transform: scale(0.98); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        /* Enhanced Loading States */
+        .loading-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem 2rem;
+            background: linear-gradient(145deg, rgba(13, 18, 30, 0.95) 0%, rgba(22, 30, 48, 0.95) 100%);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: var(--radius-md);
+            box-shadow: 0 0 40px rgba(99, 102, 241, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .loading-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--primary-gradient);
+            border-radius: var(--radius-md) var(--radius-md) 0 0;
+        }
+
+        .progress-ring-svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 1.5rem;
+            filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.3));
+        }
+
+        .progress-ring-bg {
+            stroke: rgba(139, 92, 246, 0.15);
+        }
+
+        .progress-ring {
+            stroke: url(#gradient);
+            stroke-dasharray: 213.6;
+            stroke-dashoffset: 213.6;
+            transition: stroke-dashoffset 0.3s ease-out;
+        }
+
+        .loading-funny-text {
+            font-size: 1.15rem;
+            font-weight: 600;
+            background: linear-gradient(90deg, #e2e8f0, #a5b4fc, #c084fc, #a5b4fc, #e2e8f0);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmer 3s linear infinite;
+            min-height: 1.8em;
+            text-align: center;
+            max-width: 90%;
+            line-height: 1.5;
+        }
+
+        .loading-funny-text.opacity-transition {
+            transition: opacity 0.2s ease;
+        }
+
+        .loading-timer {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: #8b5cf6;
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+
+        .step-indicators {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .step-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(139, 92, 246, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .step-dot.active {
+            background: #8b5cf6;
+            border-color: #8b5cf6;
+            box-shadow: 0 0 12px rgba(139, 92, 246, 0.6);
+            animation: pulseGlow 1.5s ease-in-out infinite;
+        }
+
+        .step-dot.completed {
+            background: #10b981;
+            border-color: #10b981;
+        }
+
+        /* Toast notifications */
+        .toast-container {
+            position: fixed;
+            top: 1.5rem;
+            right: 1.5rem;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .toast {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.25rem;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-md);
+            backdrop-filter: blur(16px);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            min-width: 280px;
+            max-width: 400px;
+        }
+
+        .toast.success {
+            border-left: 4px solid var(--success-color);
+        }
+
+        .toast.error {
+            border-left: 4px solid var(--error-color);
+        }
+
+        .toast.warning {
+            border-left: 4px solid var(--warning-color);
+        }
+
+        .toast.info {
+            border-left: 4px solid #3b82f6;
+        }
+
+        .toast-icon {
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .toast.success .toast-icon { color: var(--success-color); }
+        .toast.error .toast-icon { color: var(--error-color); }
+        .toast.warning .toast-icon { color: var(--warning-color); }
+        .toast.info .toast-icon { color: #3b82f6; }
+
+        .toast-message {
+            flex: 1;
+            font-size: 0.9rem;
+            color: var(--text-main);
+            line-height: 1.4;
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            color: var(--text-subtle);
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: var(--radius-sm);
+            transition: all 0.2s ease;
+        }
+
+        .toast-close:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-main);
+        }
+
+        .toast.hide {
+            animation: slideInRight 0.3s ease-in reverse forwards;
+        }
+
+        /* Result animation */
+        .result-container.animate-in {
+            animation: bounceIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Button loading state */
+        .btn-submit.loading {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #c026d3 100%);
+        }
+
+        /* Textarea character limit warning */
+        .textarea-footer .warning {
+            color: var(--warning-color);
+        }
+
+        .textarea-footer .danger {
+            color: var(--error-color);
+        }
+
+        /* Focus visible for accessibility */
+        *:focus-visible {
+            outline: 2px solid #8b5cf6;
+            outline-offset: 2px;
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* High contrast mode support */
+        @media (prefers-contrast: high) {
+            :root {
+                --card-border: rgba(255, 255, 255, 0.3);
+                --text-muted: #d1d5db;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>Text Summarizer</h1>
-    <form id="summarizeForm">
-        <label for="text">Enter Text:</label>
-        <textarea id="text" name="text" rows="4" cols="50" required></textarea><br>
-        <div class="loading" id="loadingContainer">
-            <img src="https://loading.io/spinners/spin/lg.ajax-spinner-gif.gif" alt="Loading...">
-        </div>
-        <input type="button" value="Summarize" onclick="summarizeText()">
-    </form>
 
-    <div id="resultContainer"></div>
+    <!-- Ambient Gradient Backdrops -->
+    <div class="ambient-glow glow-1"></div>
+    <div class="ambient-glow glow-2"></div>
+    <div class="ambient-glow glow-3"></div>
+
+    <!-- Toast Container for Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="badge">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Pegasus Neural NLP Model
+            </div>
+            <h1>SummarizeAI</h1>
+            <p class="tagline">Transform long dialogues, articles, and documents into concise, highly accurate summaries in seconds.</p>
+            
+            <div class="features-row">
+                <div class="feature-pill"><i class="fa-solid fa-bolt"></i> Fast Inference</div>
+                <div class="feature-pill"><i class="fa-solid fa-brain"></i> Seq2Seq Pegasus</div>
+                <div class="feature-pill"><i class="fa-solid fa-shield-halved"></i> MLOps Pipeline</div>
+            </div>
+        </header>
+
+        <!-- Main Input Card -->
+        <div class="card">
+            <!-- Sample Preset Selection -->
+            <div class="preset-header">
+                <span class="preset-label"><i class="fa-solid fa-lightbulb"></i> Try a Sample Preset:</span>
+            </div>
+            <div class="preset-chips">
+                <button type="button" class="chip-btn" onclick="loadSample('dialogue')">
+                    <i class="fa-solid fa-comments"></i> Dialogue
+                </button>
+                <button type="button" class="chip-btn" onclick="loadSample('news')">
+                    <i class="fa-solid fa-newspaper"></i> News Article
+                </button>
+                <button type="button" class="chip-btn" onclick="loadSample('meeting')">
+                    <i class="fa-solid fa-handshake"></i> Meeting Brief
+                </button>
+                <button type="button" class="chip-btn" onclick="loadSample('tech')">
+                    <i class="fa-solid fa-microchip"></i> Tech Abstract
+                </button>
+            </div>
+
+            <!-- Error Banner -->
+            <div id="alertBanner" class="alert-banner">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span id="alertText">Please enter some text before clicking summarize.</span>
+            </div>
+
+            <!-- Form -->
+            <form id="summarizeForm" onsubmit="event.preventDefault(); summarizeText();">
+                <div class="textarea-wrapper">
+                    <textarea 
+                        id="textInput" 
+                        name="text" 
+                        placeholder="Paste your conversation, article, or document text here..."
+                        oninput="updateCounters()"
+                    ></textarea>
+                    
+                    <div class="textarea-footer">
+                        <div class="counter-badge">
+                            <span><i class="fa-solid fa-font"></i> <strong id="charCount">0</strong> chars</span>
+                            <span><i class="fa-solid fa-align-left"></i> <strong id="wordCount">0</strong> words</span>
+                        </div>
+                        <button type="button" class="clear-btn" onclick="clearInput()">
+                            <i class="fa-solid fa-trash-can"></i> Clear
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" id="submitBtn" class="btn-submit">
+                    <i class="fa-solid fa-sparkles"></i> Summarize Text
+                </button>
+            </form>
+
+            <!-- Funny Animated Loading State -->
+            <div id="loadingContainer" class="loading-container">
+                <!-- SVG Progress Ring -->
+                <svg class="progress-ring-svg" width="80" height="80" viewBox="0 0 80 80">
+                    <circle class="progress-ring-bg" cx="40" cy="40" r="34" stroke="rgba(139, 92, 246, 0.15)" stroke-width="6" fill="none"/>
+                    <circle id="progressRing" class="progress-ring" cx="40" cy="40" r="34" stroke="url(#gradient)" stroke-width="6" stroke-linecap="round" fill="none" stroke-dasharray="213.6" stroke-dashoffset="213.6" transform="rotate(-90 40 40)"/>
+                    <defs>
+                        <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#8b5cf6"/>
+                            <stop offset="50%" stop-color="#d946ef"/>
+                            <stop offset="100%" stop-color="#10b981"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+
+                <div id="funnyText" class="loading-funny-text">Hold your horses, we're condensing your wisdom...</div>
+
+                <!-- Step indicators -->
+                <div class="step-indicators" style="display: flex; justify-content: center; gap: 0.5rem; margin-top: 1rem;">
+                    <div class="step-dot" data-step="1"></div>
+                    <div class="step-dot" data-step="2"></div>
+                    <div class="step-dot" data-step="3"></div>
+                </div>
+
+                <div id="loadingTimer" class="loading-timer"><i class="fa-regular fa-clock"></i> Elapsed: 0.0s</div>
+            </div>
+        </div>
+
+        <!-- Result Container -->
+        <div id="resultContainer" class="result-container card">
+            <div class="result-header">
+                <div class="result-title">
+                    <i class="fa-solid fa-circle-check"></i> Generated Summary
+                </div>
+                <div class="action-buttons">
+                    <button type="button" id="copyBtn" class="btn-action" onclick="copySummary()">
+                        <i class="fa-regular fa-copy"></i> Copy Text
+                    </button>
+                    <button type="button" id="speakBtn" class="btn-action" onclick="speakSummary()">
+                        <i class="fa-solid fa-volume-high"></i> Listen
+                    </button>
+                </div>
+            </div>
+
+            <div id="summaryContent" class="summary-body">
+                <!-- Summary output will appear here -->
+            </div>
+
+            <!-- Analytics Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div id="origWordsStat" class="stat-val">0</div>
+                    <div class="stat-label">Original Words</div>
+                </div>
+                <div class="stat-card">
+                    <div id="summaryWordsStat" class="stat-val">0</div>
+                    <div class="stat-label">Summary Words</div>
+                </div>
+                <div class="stat-card">
+                    <div id="reductionStat" class="stat-val highlight">0%</div>
+                    <div class="stat-label">Reduction Ratio</div>
+                </div>
+                <div class="stat-card">
+                    <div id="timeStat" class="stat-val">0.0s</div>
+                    <div class="stat-label">Inference Time</div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
-        function summarizeText() {
-            var text = document.getElementById("text").value;
+        // Preset sample texts
+        const samples = {
+            dialogue: "Hannah: Hey, do you have Betty's number?\nAmanda: Lemme check.\nAmanda: Sorry, I don't.\nAmanda: Try asking Larry.\nAmanda: He might have it.",
+            news: "Scientists have discovered a new species of deep-sea jellyfish in the Pacific Ocean that exhibits bioluminescent properties never seen before. The creature, named Aurelia Ignis, emits pulsing turquoise light pulses when threatened by predators. Researchers from the Oceanographic Institute spent three years analyzing high-resolution video footage and specimen samples collected by autonomous underwater vehicles operating at depths below 4,000 meters.",
+            meeting: "Quarterly Sync Meeting: The product team reviewed the Q3 roadmap and agreed to prioritize the mobile redesign. Marketing reported a 25% increase in user engagement following the recent summer campaign. Engineering highlighted technical debt concerns regarding legacy API services, proposing a migration sprint next month. The budget was approved unanimously.",
+            tech: "Transformer-based sequence-to-sequence models have revolutionized natural language processing by leveraging self-attention mechanisms to capture long-range dependencies in textual data. Unlike traditional recurrent neural networks, transformers allow parallelization during training, significantly reducing training times on large-scale datasets while maintaining superior performance across tasks like summarization, translation, and text generation."
+        };
 
-            // Show loading spinner
-            document.getElementById("loadingContainer").style.display = "block";
+        // Funny rotating loading messages
+        const funnyMessages = [
+            "🐎 Hold your horses, we're condensing your wisdom...",
+            "🧠 Consulting the AI neural network... It's thinking really hard!",
+            "✂️ Snipping out the fluff, keeping only the good stuff...",
+            "⚡ Feeding Pegasus its daily dose of language tokens...",
+            "☕ Grabbing a quick virtual coffee while Pegasus reads this...",
+            "🚀 Translating long paragraphs into short magic...",
+            "🔮 Condensing your text into a bite-sized masterpiece...",
+            "🪄 Almost there! Polishing the final summary..."
+        ];
 
-            // Make an asynchronous request to the server
-            var xhr = new XMLHttpRequest();
-            xhr.open("POST", "/predict", true);
-            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4) {
-                    // Hide loading spinner
-                    document.getElementById("loadingContainer").style.display = "none";
+        let funnyIndex = 0;
+        let funnyTimer = null;
+        let clockTimer = null;
+        let progressInterval = null;
+        let startTime = 0;
+        const CHARS_PER_SEC_ESTIMATE = 500;
 
-                    if (xhr.status === 200) {
-                        // Update the result container with the summarized text
-                        document.getElementById("resultContainer").innerHTML = "<p>Summarized Text:</p><p>" + xhr.responseText + "</p>";
-                    } else {
-                        // Handle error
-                        console.error("Error occurred:", xhr.statusText);
-                        alert("Error occurred. Please try again.");
-                    }
+        function loadSample(key) {
+            const textarea = document.getElementById("textInput");
+            textarea.value = samples[key] || "";
+            updateCounters();
+            hideAlert();
+            textarea.focus();
+        }
+
+        function updateCounters() {
+            const text = document.getElementById("textInput").value;
+            const chars = text.length;
+            const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+            
+            const charCountEl = document.getElementById("charCount");
+            const wordCountEl = document.getElementById("wordCount");
+            
+            charCountEl.innerText = chars.toLocaleString();
+            wordCountEl.innerText = words.toLocaleString();
+            
+            // Color code the counters
+            const footer = document.querySelector('.textarea-footer');
+            if (chars > 5000) {
+                footer.style.color = 'var(--warning-color)';
+            } else if (chars > 10000) {
+                footer.style.color = 'var(--error-color)';
+            } else {
+                footer.style.color = '';
+            }
+        }
+
+        function clearInput() {
+            const textarea = document.getElementById("textInput");
+            textarea.value = "";
+            updateCounters();
+            hideAlert();
+            document.getElementById("resultContainer").style.display = "none";
+            document.getElementById("loadingContainer").style.display = "none";
+            textarea.focus();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const textarea = document.getElementById("textInput");
+            
+            // Keyboard shortcut: Ctrl+Enter or Cmd+Enter to submit
+            textarea.addEventListener('keydown', (e) => {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                    e.preventDefault();
+                    summarizeText();
                 }
+            });
+            
+            // Welcome toast
+            setTimeout(() => {
+                showToast('👋 Welcome to SummarizeAI! Paste your text and click Summarize to get started.', 'info', 5000);
+            }, 800);
+        });
+
+        function showAlert(msg) {
+            showToast(msg, 'error');
+            
+            const textarea = document.getElementById("textInput");
+            textarea.classList.add("shake");
+            setTimeout(() => textarea.classList.remove("shake"), 500);
+        }
+
+        function hideAlert() {
+            const banner = document.getElementById("alertBanner");
+            if (banner) banner.style.display = "none";
+        }
+
+        function showToast(message, type = 'info', duration = 4000) {
+            const container = document.getElementById('toastContainer');
+            
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icons = {
+                success: '<i class="fa-solid fa-circle-check toast-icon"></i>',
+                error: '<i class="fa-solid fa-circle-exclamation toast-icon"></i>',
+                warning: '<i class="fa-solid fa-triangle-exclamation toast-icon"></i>',
+                info: '<i class="fa-solid fa-circle-info toast-icon"></i>'
             };
-            xhr.send("text=" + encodeURIComponent(text));
+
+            toast.innerHTML = `
+                ${icons[type] || icons.info}
+                <div class="toast-message">${message}</div>
+                <button class="toast-close" onclick="this.parentElement.remove()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            `;
+
+            container.appendChild(toast);
+
+            if (duration > 0) {
+                setTimeout(() => {
+                    toast.classList.add('hide');
+                    setTimeout(() => toast.remove(), 300);
+                }, duration);
+            }
+        }
+
+        function startFunnyRotation() {
+            funnyIndex = 0;
+            const funnyEl = document.getElementById("funnyText");
+            funnyEl.innerText = funnyMessages[0];
+            funnyEl.style.opacity = 1;
+            
+            // Reset step indicators
+            const stepDots = document.querySelectorAll('.step-dot');
+            stepDots.forEach((dot, i) => {
+                dot.classList.remove('active', 'completed');
+                if (i === 0) dot.classList.add('active');
+            });
+            
+            // Reset progress ring
+            const progressRing = document.getElementById('progressRing');
+            if (progressRing) {
+                progressRing.style.strokeDashoffset = '213.6';
+            }
+            
+            // Animate progress ring
+            let progress = 0;
+            const circumference = 213.6;
+            const estimatedTime = Math.max(3000, document.getElementById('textInput').value.length * 10);
+            const incrementPerFrame = (circumference / (estimatedTime / 100)) * 0.3;
+            
+            progressInterval = setInterval(() => {
+                progress = Math.min(100, progress + (100 / (estimatedTime / 100)));
+                const offset = circumference - (progress / 100) * circumference;
+                if (progressRing) {
+                    progressRing.style.strokeDashoffset = offset;
+                }
+                
+                // Update step indicators based on progress
+                const dots = document.querySelectorAll('.step-dot');
+                dots.forEach((dot, i) => {
+                    dot.classList.remove('active');
+                    if (progress > (i + 1) * 33) {
+                        dot.classList.add('completed');
+                    } else if (progress > i * 33) {
+                        dot.classList.add('active');
+                    }
+                });
+            }, 100);
+            
+            funnyTimer = setInterval(() => {
+                funnyIndex = (funnyIndex + 1) % funnyMessages.length;
+                funnyEl.style.opacity = 0;
+                setTimeout(() => {
+                    funnyEl.innerText = funnyMessages[funnyIndex];
+                    funnyEl.style.opacity = 1;
+                }, 200);
+            }, 7000);
+        }
+
+        function stopFunnyRotation() {
+            if (funnyTimer) clearInterval(funnyTimer);
+            if (clockTimer) clearInterval(clockTimer);
+            if (progressInterval) clearInterval(progressInterval);
+            
+            // Complete all step indicators
+            setTimeout(() => {
+                const stepDots = document.querySelectorAll('.step-dot');
+                stepDots.forEach(dot => {
+                    dot.classList.remove('active');
+                    dot.classList.add('completed');
+                });
+            }, 300);
+        }
+
+        function summarizeText() {
+            const textInput = document.getElementById("textInput");
+            const text = textInput.value.trim();
+
+            if (!text) {
+                showToast('Please enter or paste some text before clicking Summarize!', 'error');
+                textInput.focus();
+                return;
+            }
+
+            if (text.length < 50) {
+                showToast('Please enter at least 50 characters for a meaningful summary.', 'warning');
+                textInput.focus();
+                return;
+            }
+
+            hideAlert();
+            document.getElementById("resultContainer").style.display = "none";
+            document.getElementById("loadingContainer").style.display = "flex";
+            
+            const submitBtn = document.getElementById("submitBtn");
+            submitBtn.disabled = true;
+            submitBtn.classList.add('loading');
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
+
+            startFunnyRotation();
+            
+            startTime = performance.now();
+            const timerEl = document.getElementById("loadingTimer");
+            clockTimer = setInterval(() => {
+                const elapsed = ((performance.now() - startTime) / 1000).toFixed(1);
+                timerEl.innerHTML = `<i class="fa-regular fa-clock"></i> Elapsed: ${elapsed}s`;
+            }, 100);
+
+            fetch("/predict", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: "text=" + encodeURIComponent(text)
+            })
+            .then(async response => {
+                const elapsedSec = ((performance.now() - startTime) / 1000).toFixed(2);
+                stopFunnyRotation();
+                document.getElementById("loadingContainer").style.display = "none";
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('loading');
+                submitBtn.innerHTML = '<i class="fa-solid fa-sparkles"></i> Summarize Text';
+
+                const responseText = await response.text();
+
+                if (!response.ok) {
+                    throw new Error(responseText || "Server returned an error.");
+                }
+
+                displayResults(text, responseText, elapsedSec);
+                showToast('Summary generated successfully!', 'success');
+            })
+            .catch(err => {
+                stopFunnyRotation();
+                document.getElementById("loadingContainer").style.display = "none";
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('loading');
+                submitBtn.innerHTML = '<i class="fa-solid fa-sparkles"></i> Summarize Text';
+
+                showToast(err.message || "An unexpected error occurred. Please check your network connection and try again.", 'error', 6000);
+            });
+        }
+
+        function displayResults(originalText, summaryText, elapsedSec) {
+            const resContainer = document.getElementById("resultContainer");
+            resContainer.style.display = "block";
+            resContainer.classList.add('animate-in');
+            setTimeout(() => resContainer.classList.remove('animate-in'), 700);
+            resContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+            document.getElementById("summaryContent").innerText = summaryText;
+
+            const origWords = originalText.trim() ? originalText.trim().split(/\s+/).length : 0;
+            const summaryWords = summaryText.trim() ? summaryText.trim().split(/\s+/).length : 0;
+            
+            let reduction = 0;
+            if (origWords > 0) {
+                reduction = Math.max(0, Math.round(((origWords - summaryWords) / origWords) * 100));
+            }
+
+            document.getElementById("origWordsStat").innerText = origWords.toLocaleString();
+            document.getElementById("summaryWordsStat").innerText = summaryWords.toLocaleString();
+            document.getElementById("reductionStat").innerText = `${reduction}%`;
+            document.getElementById("timeStat").innerText = `${elapsedSec}s`;
+        }
+
+        function copySummary() {
+            const summaryText = document.getElementById("summaryContent").innerText;
+            if (!summaryText) {
+                showToast('No summary available to copy.', 'warning');
+                return;
+            }
+
+            navigator.clipboard.writeText(summaryText).then(() => {
+                const btn = document.getElementById("copyBtn");
+                btn.innerHTML = '<i class="fa-solid fa-check" style="color:#10b981;"></i> Copied!';
+                showToast('Summary copied to clipboard!', 'success', 2000);
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="fa-regular fa-copy"></i> Copy Text';
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+                showToast('Failed to copy text. Please try again.', 'error');
+            });
+        }
+
+        function speakSummary() {
+            const summaryText = document.getElementById("summaryContent").innerText;
+            if (!summaryText) {
+                showToast('No summary available to listen to.', 'warning');
+                return;
+            }
+
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(summaryText);
+                utterance.rate = 1.0;
+                window.speechSynthesis.speak(utterance);
+
+                const btn = document.getElementById("speakBtn");
+                btn.innerHTML = '<i class="fa-solid fa-volume-high fa-beat" style="color:#8b5cf6;"></i> Playing...';
+                utterance.onend = () => {
+                    btn.innerHTML = '<i class="fa-solid fa-volume-high"></i> Listen';
+                };
+                utterance.onerror = () => {
+                    btn.innerHTML = '<i class="fa-solid fa-volume-high"></i> Listen';
+                    showToast('Failed to play audio. Please try again.', 'error');
+                };
+            } else {
+                showToast('Text-to-speech is not supported in your browser.', 'error');
+            }
         }
     </script>
 </body>

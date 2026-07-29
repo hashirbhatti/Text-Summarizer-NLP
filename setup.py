@@ -6,11 +6,10 @@ with open("README.md", "r", encoding="utf-8") as f:
 
 __version__ = "0.0.0"
 
-REPO_NAME = "Text-Summarizer-Project"
-AUTHOR_USER_NAME = "Hashir Bhatti"
+REPO_NAME = "Text-Summarizer-NLP"
+AUTHOR_USER_NAME = "hashirbhatti"
 SRC_REPO = "textSummarizer"
 AUTHOR_EMAIL = "bhattihashir26@gmail.com"
-
 
 
 setuptools.setup(
@@ -21,10 +20,10 @@ setuptools.setup(
     description="A small python package for NLP app",
     long_description=long_description,
     long_description_content="text/markdown",
-    url=f"https://github.com/{hashirbhatti}/{Text-Summarizer-NLP}",
+    url=f"https://github.com/{AUTHOR_USER_NAME}/{REPO_NAME}",
     project_urls={
-        "Bug Tracker": f"https://github.com/{hashirbhatti}/{Text-Summarizer-NLP}/issues",
+        "Bug Tracker": f"https://github.com/{AUTHOR_USER_NAME}/{REPO_NAME}/issues",
     },
     package_dir={"": "src"},
-    packages=setuptools.find_packages(where="src")
+    packages=setuptools.find_packages(where="src"),
 )

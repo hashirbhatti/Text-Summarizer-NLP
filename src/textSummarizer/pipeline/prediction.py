@@ -20,13 +20,17 @@ class PredictionPipeline:
             elif os.path.exists(model_path):
                 self.tokenizer = AutoTokenizer.from_pretrained(model_path)
             else:
-                self.tokenizer = AutoTokenizer.from_pretrained("google/pegasus-cnn_dailymail")
+                self.tokenizer = AutoTokenizer.from_pretrained(
+                    "google/pegasus-cnn_dailymail"
+                )
 
             # Load model from model_path or base checkpoint
             if os.path.exists(model_path):
                 self.model = AutoModelForSeq2SeqLM.from_pretrained(model_path)
             else:
-                self.model = AutoModelForSeq2SeqLM.from_pretrained("google/pegasus-cnn_dailymail")
+                self.model = AutoModelForSeq2SeqLM.from_pretrained(
+                    "google/pegasus-cnn_dailymail"
+                )
 
     def predict(self, text):
         self._load_model()
@@ -36,7 +40,9 @@ class PredictionPipeline:
         print("Dialogue:")
         print(text)
 
-        inputs = self.tokenizer(text, return_tensors="pt", max_length=1024, truncation=True)
+        inputs = self.tokenizer(
+            text, return_tensors="pt", max_length=1024, truncation=True
+        )
         summary_ids = self.model.generate(
             inputs["input_ids"],
             attention_mask=inputs.get("attention_mask"),
@@ -48,4 +54,3 @@ class PredictionPipeline:
         print(output)
 
         return output
-
