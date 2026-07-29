@@ -162,6 +162,10 @@ Ensure `markupsafe`, `Jinja2`, and `werkzeug` are installed. Force reinstall if 
 pip install --force-reinstall markupsafe Jinja2 werkzeug flask
 ```
 
+## Demo
+
+A live demo of the Text Summarizer web app is coming soon. Check back for a video walkthrough of the application in action.
+
 ## License
 
 This project is licensed under the MIT License — see the `LICENSE` file for details.
