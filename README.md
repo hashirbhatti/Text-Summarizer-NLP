@@ -1,131 +1,172 @@
-# End to end Text-Summarizer-Project
+# Text-Summarizer-NLP
 
-## Workflows
+Text-Summarizer-NLP is an end-to-end Machine Learning Operations (MLOps) project that builds a production-ready NLP text summarization system. The project implements a complete ML lifecycle — from data ingestion and validation, through model training and evaluation — packaged as both an automated training pipeline and a user-facing web application.
 
-1. Update config.yaml
-2. Update params.yaml
-3. Update entity
-4. Update the configuration manager in src config
-5. update the conponents
-6. update the pipeline
-7. update the main.py
-8. update the app.py
+## What Does This Project Do?
 
+The system automatically summarizes long textual content (such as news articles or meeting transcripts) into concise, coherent summaries using a fine-tuned Pegasus sequence-to-sequence model. It follows a multi-stage ML pipeline:
 
-# How to run?
-### STEPS:
+1. **Data Ingestion** — Downloads and extracts a summary dataset from a remote source.  
+2. **Data Validation** — Verifies that all required data splits (train, test, validation) are present.  
+3. **Data Transformation** — Tokenizes the dataset using the Pegasus tokenizer and prepares it for training.  
+4. **Model Training** — Fine-tunes the `google/pegasus-cnn_dailymail` model on the samsum dataset.  
+5. **Model Evaluation** — Evaluates the trained model using ROUGE metrics and saves the results.  
 
-Clone the repository
+A Flask-based web app provides a simple frontend where users can paste text and receive an instant summary powered by the trained model.
 
-```bash
-https://github.com/entbappy/End-to-end-Text-Summarization
+## Features
+
+- **Full ML Pipeline** — Automates the entire training workflow with 5 configurable stages
+- **ROUGE Evaluation** — Measures summary quality using ROUGE-1, ROUGE-2, ROUGE-L, and ROUGE-Lsum metrics
+- **Web Interface** — Simple, responsive UI for text summarization via a browser
+- **MLOps Best Practices** — Configuration-driven with YAML files, structured logging, and artifact management
+- **GPU Support** — Built to leverage NVIDIA GPU acceleration with PyTorch CUDA support
+
+## Project Structure
+
 ```
-### STEP 01- Create a conda environment after opening the repository
-
-```bash
-conda create -n summary python=3.8 -y
+Text-Summarizer-NLP/
+├── app.py                      # Flask web application
+├── main.py                     # ML training pipeline (runs all 5 stages)
+├── template.py                 # Code generation template
+├── setup.py                    # Package setup configuration
+├── requirements.txt            # Python dependencies
+├── params.yaml                 # Training hyperparameters
+├── config/
+│   └── config.yaml             # Project configuration (paths, URLs, model names)
+├── src/
+│   └── textSummarizer/
+│       ├── __init__.py
+│       ├── config/
+│       │   └── configuration.py    # Config reader and manager
+│       ├── entity/
+│       │   └── ...                # Data classes for configs
+│       ├── utils/
+│       │   └── common.py          # Shared utilities (YAML reader, directory creator)
+│       ├── logging/
+│       │   └── ...                # Custom logger setup
+│       └── pipeline/
+│           ├── stage_01_data_ingestion.py
+│           ├── stage_02_data_validation.py
+│           ├── stage_03_data_transformation.py
+│           ├── stage_04_model_trainer.py
+│           ├── stage_05_model_evaluation.py
+│           └── prediction.py      # Web app prediction logic
+├── templates/
+│   └── index.html               # Flask HTML template (web UI)
+├── artifacts/                   # Generated data, models, and metrics (gitignored)
+├── logs/                        # Application logs (gitignored)
+└── .venv/                       # Conda virtual environment (gitignored)
 ```
 
+## Prerequisites
+
+Before setting up the project locally, ensure you have the following installed:
+
+- **Python 3.11** or higher
+- **Git**
+- **Conda** (Miniconda or Anaconda) — [Download conda](https://docs.anaconda.com/miniconda/)
+- **NVIDIA GPU** (optional, recommended) with CUDA drivers for GPU-accelerated training
+
+## Installation & Setup (2 Steps)
+
+### Step 1: Clone the Repository and Set Up the Conda Environment
+
 ```bash
-conda activate summary
+# Clone the repository
+git clone https://github.com/hashirbhatti/Text-Summarizer-NLP.git
+cd Text-Summarizer-NLP
+
+# Create and activate the conda environment
+conda create -p .venv python=3.11 -y
+conda activate .venv
 ```
 
+### Step 2: Install Dependencies and Run
 
-### STEP 02- install the requirements
 ```bash
+# Install all Python dependencies
 pip install -r requirements.txt
 ```
 
+That's it. The environment is ready.
+
+**Note:** If you encounter an SSL certificate error on Windows when installing packages, ensure `conda activate .venv` properly switches your Python to the `.venv` environment by checking `python --version` — it should show `Python 3.11.x`, not `3.14.x` or `3.8.x`. If not, restart your terminal and try activating the environment again.
+
+## How to Run the ML Training Pipeline
+
+The training pipeline runs all 5 stages sequentially (ingestion → validation → transformation → training → evaluation):
 
 ```bash
-# Finally run the following command
+python main.py
+```
+
+What happens:
+- **Stage 1 — Data Ingestion**: Downloads the samsum dataset and saves it to `artifacts/data_ingestion/`
+- **Stage 2 — Data Validation**: Checks that train/test/validation splits exist
+- **Stage 3 — Data Transformation**: Tokenizes the data using the Pegasus tokenizer
+- **Stage 4 — Model Trainer**: Fine-tunes Pegasus on the dataset (this takes the longest)
+- **Stage 5 — Model Evaluation**: Computes ROUGE scores and saves metrics to `artifacts/model_evaluation/metrics.csv`
+
+All model artifacts ( checkpoints, tokenizer, metrics) are saved under the `artifacts/` directory.
+
+## How to Start the Web Application
+
+First, make sure the ML pipeline has been run at least once (so a trained model exists), then start the Flask web app:
+
+```bash
 python app.py
 ```
 
-Now,
+The server will start on **http://localhost:8080**. Open this URL in your browser to access the summarization web app.
+
+The web app lets you:
+- Paste any text into the input field
+- Click **Summarize** to generate a summary
+- View the generated summary below the input
+
+The app uses the trained model from `artifacts/model_trainer/pegasus-samsum-model` for inference.
+
+## Configuration
+
+All key settings are managed through configuration files:
+
+| File | Purpose |
+|------|---------|
+| `config/config.yaml` | Data paths, model checkpoint name, tokenizer name |
+| `params.yaml` | Training hyperparameters (batch size, learning rate, epochs, etc.) |
+| `requirements.txt` | Python package dependencies |
+
+To customize the model, change `model_ckpt` and `tokenizer_name` in `config/config.yaml` (e.g., `google/pegasus-xsum` for XSum summarization).
+
+## Troubleshooting
+
+**`ModuleNotFoundError: No module named 'box'`**  
+Make sure you've activated the `.venv` environment (`conda activate .venv`) and installed requirements (`pip install -r requirements.txt`).
+
+**`ImportError: cannot import name 'DTensor'`**  
+Your installed `transformers` package is too new for your PyTorch version. Downgrade with: `pip install transformers==4.44.0`
+
+**SSL errors on Windows**  
+Your Python environment may have a known SSL bug. Recreate the conda environment with Python 3.11+:  
 ```bash
-open up you local host and port
+conda env remove -p .venv -y
+conda create -p .venv python=3.11 -y
+conda activate .venv
+pip install -r requirements.txt
 ```
 
-
+**Flask not starting**  
+Ensure `markupsafe`, `Jinja2`, and `werkzeug` are installed. Force reinstall if needed:  
 ```bash
-Author: Krish Naik
-Data Scientist
-Email: krishnaik06@gmail.com
-
+pip install --force-reinstall markupsafe Jinja2 werkzeug flask
 ```
 
+## License
 
+This project is licensed under the MIT License — see the `LICENSE` file for details.
 
-# AWS-CICD-Deployment-with-Github-Actions
+## Author
 
-## 1. Login to AWS console.
-
-## 2. Create IAM user for deployment
-
-	#with specific access
-
-	1. EC2 access : It is virtual machine
-
-	2. ECR: Elastic Container registry to save your docker image in aws
-
-
-	#Description: About the deployment
-
-	1. Build docker image of the source code
-
-	2. Push your docker image to ECR
-
-	3. Launch Your EC2 
-
-	4. Pull Your image from ECR in EC2
-
-	5. Lauch your docker image in EC2
-
-	#Policy:
-
-	1. AmazonEC2ContainerRegistryFullAccess
-
-	2. AmazonEC2FullAccess
-
-	
-## 3. Create ECR repo to store/save docker image
-    - Save the URI: 566373416292.dkr.ecr.us-east-1.amazonaws.com/text-s
-
-	
-## 4. Create EC2 machine (Ubuntu) 
-
-## 5. Open EC2 and Install docker in EC2 Machine:
-	
-	
-	#optinal
-
-	sudo apt-get update -y
-
-	sudo apt-get upgrade
-	
-	#required
-
-	curl -fsSL https://get.docker.com -o get-docker.sh
-
-	sudo sh get-docker.sh
-
-	sudo usermod -aG docker ubuntu
-
-	newgrp docker
-	
-# 6. Configure EC2 as self-hosted runner:
-    setting>actions>runner>new self hosted runner> choose os> then run command one by one
-
-
-# 7. Setup github secrets:
-
-    AWS_ACCESS_KEY_ID=
-
-    AWS_SECRET_ACCESS_KEY=
-
-    AWS_REGION = us-east-1
-
-    AWS_ECR_LOGIN_URI = demo>>  566373416292.dkr.ecr.ap-south-1.amazonaws.com
-
-    ECR_REPOSITORY_NAME = simple-app
+**Hashir Bhatti**  
+**Email:** bhattihashir26@gmail.com
