@@ -108,7 +108,20 @@ What happens:
 - **Stage 4 — Model Trainer**: Fine-tunes Pegasus on the dataset (this takes the longest)
 - **Stage 5 — Model Evaluation**: Computes ROUGE scores and saves metrics to `artifacts/model_evaluation/metrics.csv`
 
-All model artifacts ( checkpoints, tokenizer, metrics) are saved under the `artifacts/` directory.
+All model artifacts (checkpoints, tokenizer, metrics) are saved under the `artifacts/` directory.
+
+## Model Evaluation Results
+
+The model was trained on **14,732** records from the samsum dataset and evaluated using ROUGE metrics:
+
+| Metric | Score |
+|--------|-------|
+| ROUGE-1 | 0.018737 |
+| ROUGE-2 | 0.000341 |
+| ROUGE-L | 0.018644 |
+| ROUGE-Lsum | 0.018675 |
+
+Full metrics are saved in `artifacts/model_evaluation/metrics.csv`.
 
 ## How to Start the Web Application
 
