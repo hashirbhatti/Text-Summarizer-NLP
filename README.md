@@ -177,7 +177,7 @@ pip install --force-reinstall markupsafe Jinja2 werkzeug flask
 
 ## Demo
 
-A live demo of the Text Summarizer web app is coming soon. Check back for a video walkthrough of the application in action.
+https://github.com/user-attachments/assets/4d93135f-895d-4699-b532-9a6f2439bd41
 
 ## License
 
